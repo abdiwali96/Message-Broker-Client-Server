@@ -27,8 +27,7 @@ def main():
 
 
     while connected:
-
-        
+     
         msg = input("> ")
 
         client.send(msg.encode(FORMAT))
@@ -38,6 +37,8 @@ def main():
         else:
             msg = client.recv(SIZE).decode(FORMAT)
             print(f"[SERVER] {msg}")
+
+            
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,28 @@
+{ "abdigroup": {
+    "messages": [
+      {"firstname": "New", "lastname": "New", "age": "New"},
+      {"firstname": "New", "lastname": "New", "age": "New"},
+      {"firstname": "New", "lastname": "New", "age": "New"},
+      {"firstname": "New", "lastname": "New", "age": "New"},
+      {"firstname": "New", "lastname": "New", "age": "New"},
+      {"firstname": "New", "lastname": "New", "age": "New"}
+    ]
+    
+  },
+  "dabdigroup": {
+    "messages": [
+        {"firstname": "New", "lastname": "New", "age": "New"},
+        {"firstname": "New", "lastname": "New", "age": "New"},
+        {"firstname": "New", "lastname": "New", "age": "New"}
+    ]
+    
+  },
+  "omairgroup": {
+    "messages": [
+        {"firstname": "New", "lastname": "New", "age": "New"},
+        {"firstname": "New", "lastname": "New", "age": "New"},
+        {"firstname": "New", "lastname": "New", "age": "New"}
+    ]
+    
+  }
+}

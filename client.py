@@ -1,5 +1,7 @@
 import socket
 
+
+
 IP = socket.gethostbyname(socket.gethostname())
 PORT = 5567
 ADDR = (IP, PORT)
@@ -12,7 +14,12 @@ def main():
     client.connect(ADDR)
     print(f"[CONNECTED] Client connected to server at {IP}:{PORT}")
 
+    Topicname = input("Enter Topic name ->")
     connected = True
+
+    Topic_ids = 'Topic:' + Topicname
+    client.send(Topic_ids.encode(FORMAT))
+    
     while connected:
         msg = input("> ")
 
@@ -22,6 +29,7 @@ def main():
             connected = False
         else:
             msg = client.recv(SIZE).decode(FORMAT)
+            
             print(f"[SERVER] {msg}")
 
 if __name__ == "__main__":
