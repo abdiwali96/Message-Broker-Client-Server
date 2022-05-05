@@ -1,4 +1,4 @@
-{ "abdigroup": {
+{ "abditopic": {
     "messages": [
       {"firstname": "New", "lastname": "New", "age": "New"},
       {"firstname": "New", "lastname": "New", "age": "New"},
@@ -6,23 +6,32 @@
       {"firstname": "New", "lastname": "New", "age": "New"},
       {"firstname": "New", "lastname": "New", "age": "New"},
       {"firstname": "New", "lastname": "New", "age": "New"}
-    ]
+    ],
+    "groupname1": 0,
+    "groupname2": 0,
+    "groupname3": 0
     
   },
-  "dabdigroup": {
+  "dabditopic": {
     "messages": [
         {"firstname": "New", "lastname": "New", "age": "New"},
         {"firstname": "New", "lastname": "New", "age": "New"},
         {"firstname": "New", "lastname": "New", "age": "New"}
-    ]
+    ],
+    "groupname1": 0,
+    "groupname2": 0,
+    "groupname3": 0
     
   },
-  "omairgroup": {
+  "omairtopic": {
     "messages": [
         {"firstname": "New", "lastname": "New", "age": "New"},
         {"firstname": "New", "lastname": "New", "age": "New"},
         {"firstname": "New", "lastname": "New", "age": "New"}
-    ]
+    ],
+    "groupname1": 0,
+    "groupname2": 0,
+    "groupname3": 0
     
   }
 }
