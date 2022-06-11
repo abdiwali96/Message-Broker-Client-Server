@@ -24,6 +24,12 @@ def main():
     
     while connected:
          msg = client.recv(SIZE).decode(FORMAT)
+
+         if 'Yes Topic ->  ' in msg:
+             print('')
+
+         if 'No Topic ->  ' in msg:
+             print('')
             
          print(f"[SERVER] {msg}")
 

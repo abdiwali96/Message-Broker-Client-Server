@@ -132,16 +132,17 @@ def check_Topic_exist(conn,addr,msg,mydb):
     print('\n...SEARCHING DB FOR TOPIC -> ' + Topicname + ' ....\n')
 
     if cursor1.rowcount==1:
-        print('Topic ' + Topicname + ' does exist')
-        foundtopic = 'Topic ' + Topicname + ' does exist'
+        print('Topic Response -> ' + Topicname + ' does exist')
+        foundtopic = 'Topic Response -> ' + Topicname + ' does exist'
         conn.send(foundtopic.encode(FORMAT))
        
         
         # now will send a confirmation to client that Topic exist
 
     else:
-         print('Topic ' + Topicname + ' does NOT exist')
-
+        print('Topic Response -> ' + Topicname + ' does NOT exist')
+        Notfoundtopic = 'Topic Response -> ' + Topicname + ' does exist'
+        conn.send(Notfoundtopic.encode(FORMAT))
 
 
 def handle_client(conn, addr,mydb):
