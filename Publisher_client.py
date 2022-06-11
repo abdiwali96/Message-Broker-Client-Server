@@ -25,11 +25,32 @@ def main():
     while connected:
          msg = client.recv(SIZE).decode(FORMAT)
 
-         if 'Yes Topic ->  ' in msg:
-             print('')
+         if 'Yes Topic' in msg:
+             print('\nTopic group already exist..')
+             while connected:
 
-         if 'No Topic ->  ' in msg:
-             print('')
+                splitmsg = msg.split(",")
+                print(splitmsg)
+                #splitting message to grab Topic name
+                topicname = splitmsg[1]
+
+                
+                messageinput = input("\nWhat message would you like send to this Topic -> ")
+                send_message = topicname +  ':' + ' MESSAGE:' +  messageinput
+                client.send(send_message.encode(FORMAT))
+
+
+         if 'No Topic' in msg:
+
+             splitmsg = msg.split(",")
+             print(splitmsg)
+             #splitting message to grab Topic name
+             topicname = splitmsg[1]
+
+             print('\nTopic group does not Exist')
+             topicinput = input("\nWhat message would you like send to this Topic -> ")
+             create_topic = topicname + ':' + ' MESSAGE:' +  topicinput
+             client.send(create_topic.encode(FORMAT))
             
          print(f"[SERVER] {msg}")
 

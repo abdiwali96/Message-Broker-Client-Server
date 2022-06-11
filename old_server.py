@@ -132,17 +132,40 @@ def check_Topic_exist(conn,addr,msg,mydb):
     print('\n...SEARCHING DB FOR TOPIC -> ' + Topicname + ' ....\n')
 
     if cursor1.rowcount==1:
-        print('Topic Response -> ' + Topicname + ' does exist')
-        foundtopic = 'Topic Response -> ' + Topicname + ' does exist'
+        print('\nTopic Response,' + Topicname + ', does exist')
+        foundtopic = 'Yes Topic,' + Topicname + ', does exist'
         conn.send(foundtopic.encode(FORMAT))
        
         
         # now will send a confirmation to client that Topic exist
 
     else:
-        print('Topic Response -> ' + Topicname + ' does NOT exist')
-        Notfoundtopic = 'Topic Response -> ' + Topicname + ' does exist'
+        print('\nTopic Response,' + Topicname + ', does NOT exist')
+        Notfoundtopic = 'No Topic,' + Topicname + ', does NOT exist'
         conn.send(Notfoundtopic.encode(FORMAT))
+
+def DB_Message_input(topicname,clientmessage,mydb): #This function will find the record in db and add the message
+    print('')
+
+    # BEFORE UPDATING RECORD BE NEED FIRST GET THE EXISTING RECORD BEFORE ADDING TO IT
+    mycursor = mydb.cursor()
+    sql = "SELECT message_values FROM messages WHERE Topic_name ='%s'" % (topicname)
+    mycursor.execute(sql)
+    
+
+    result = mycursor.fetchone()
+    new = str(result[0]) + ',' + clientmessage  # This is the new message that is to be updated to DB
+
+    print(new)
+
+
+    sql2 = "UPDATE messages SET message_values = '%s' WHERE Topic_name = '%s'" % (new, topicname)
+    mycursor2 = mydb.cursor()
+    mycursor2.execute(sql2)
+
+    mydb.commit()
+
+    print(mycursor2.rowcount, "record(s) affected")
 
 
 def handle_client(conn, addr,mydb):
@@ -169,6 +192,23 @@ def handle_client(conn, addr,mydb):
            
             # server will check if the Topic has already been created in the database
             check_Topic_exist(conn,addr,msg,mydb)
+
+        if 'CREATE:' in msg:
+            print('')
+
+        if 'MESSAGE:' in msg:
+             splitmsg = msg.split(":")
+             print(splitmsg)
+             #splitting message to grab Topic name
+             topicname = splitmsg[0]  #topic
+             clientmessage = splitmsg[2] # client message part
+            #will now need to parse the JSON
+             DB_Message_input(topicname,clientmessage,mydb)
+             print('')
+
+
+              #Now call function to add to database.
+
 
 
 
