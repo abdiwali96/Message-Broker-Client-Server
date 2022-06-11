@@ -4,6 +4,7 @@ import threading
 import queue
 import json
 from grpc import server
+import json
 
 import mysql.connector
 
@@ -167,6 +168,18 @@ def DB_Message_input(topicname,clientmessage,mydb): #This function will find the
 
     print(mycursor2.rowcount, "record(s) affected")
 
+def Create_Topic_DB(clienttopic,mydb):
+
+    mycursor = mydb.cursor()
+
+    sql = "INSERT INTO messages (Topic_name,message_values) VALUES (%s,%s)"
+    val = (clienttopic,'')
+    mycursor.execute(sql, val)
+
+    mydb.commit()
+
+    print(mycursor.rowcount, "record inserted.")
+    print('')
 
 def handle_client(conn, addr,mydb):
     print(f"[NEW CONNECTION] {addr} connected.")
@@ -193,17 +206,41 @@ def handle_client(conn, addr,mydb):
             # server will check if the Topic has already been created in the database
             check_Topic_exist(conn,addr,msg,mydb)
 
-        if 'CREATE:' in msg:
-            print('')
+        if 'CREATE' in msg:
+             splitmsg = msg.split("#")
+             print(splitmsg)
+             #splitting message to grab Topic name
+             topicname = splitmsg[0]  #topic
+             clienttopic = splitmsg[2] # client message part
+            #will now need to parse the JSON
+             Create_Topic_DB(clienttopic,mydb)
 
-        if 'MESSAGE:' in msg:
-             splitmsg = msg.split(":")
+             success = 'Yes Topic created,' + clienttopic
+             conn.send(success.encode(FORMAT))
+
+
+
+
+        if 'MESSAGE#' in msg:
+             splitmsg = msg.split("#")
              print(splitmsg)
              #splitting message to grab Topic name
              topicname = splitmsg[0]  #topic
              clientmessage = splitmsg[2] # client message part
             #will now need to parse the JSON
-             DB_Message_input(topicname,clientmessage,mydb)
+
+             print(clientmessage)
+             data = json.loads(str(clientmessage))
+
+             final_message = ''
+             for message in data:
+                  print(data[message])
+                  final_message+=data[message] + ','
+                  
+
+             print(final_message)  
+             final_message = final_message[:-1] 
+             DB_Message_input(topicname,final_message,mydb)
              print('')
 
 

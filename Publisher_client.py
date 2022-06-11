@@ -36,7 +36,9 @@ def main():
 
                 
                 messageinput = input("\nWhat message would you like send to this Topic -> ")
-                send_message = topicname +  ':' + ' MESSAGE:' +  messageinput
+                send_message = topicname +  '#' + ' MESSAGE#' +  messageinput
+
+               
                 client.send(send_message.encode(FORMAT))
 
 
@@ -48,8 +50,8 @@ def main():
              topicname = splitmsg[1]
 
              print('\nTopic group does not Exist')
-             topicinput = input("\nWhat message would you like send to this Topic -> ")
-             create_topic = topicname + ':' + ' MESSAGE:' +  topicinput
+             topicinput = input("\nPlease a new phrase for a Topic-> ")
+             create_topic = topicname + '#' + ' CREATE#' +  topicinput
              client.send(create_topic.encode(FORMAT))
             
          print(f"[SERVER] {msg}")
