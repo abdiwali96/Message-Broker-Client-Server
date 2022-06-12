@@ -3,7 +3,7 @@ import socket
 
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 9994
+PORT = 9996
 ADDR = (IP, PORT)
 SIZE = 1024
 FORMAT = "utf-8"
@@ -44,12 +44,14 @@ def main():
 
          if 'No Topic' in msg:
 
+             print('\nTopic group does not Exist')
+
              splitmsg = msg.split(",")
              print(splitmsg)
              #splitting message to grab Topic name
              topicname = splitmsg[1]
 
-             print('\nTopic group does not Exist')
+             
              topicinput = input("\nPlease a new phrase for a Topic-> ")
              create_topic = topicname + '#' + ' CREATE#' +  topicinput
              client.send(create_topic.encode(FORMAT))

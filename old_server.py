@@ -6,10 +6,12 @@ import json
 from grpc import server
 import json
 
+import re
+
 import mysql.connector
 
 IP = socket.gethostbyname(socket.gethostname())
-PORT = 9994 #using 9999 as the welcome port number
+PORT = 9996 #using 9999 as the welcome port number
 ADDR = (IP, PORT)
 SIZE = 1024
 FORMAT = "utf-8"
@@ -71,9 +73,7 @@ def checkTopicExist(Topic_ids_list):
 
  print('')
 
-def addToQueue(conn,addr,JsonMsg):
 
-    print('addToQueue')
 
 def handle_admin(conn, addr):
     print('You have a new admin connection')
@@ -81,8 +81,89 @@ def handle_admin(conn, addr):
 def send_report(conn,addr):
     print('Sending report to Admin user ->')
 
-def client_request(conn,addr):
-    print('sending to client')
+def Get_Update(conn,addr,msg,mydb):
+
+     # Split message to get the Topic name
+    splitTopic = msg.split("#")
+  
+   # will use group name in SQL query
+    Topicnamefeedback = splitTopic[1]
+    topicname = Topicnamefeedback.split(":")
+    print('this is a test ' + topicname[0])
+    #I will need to create to queries. 
+
+    sql_select_Query_topic = "select message_values from messages where Topic_name='%s'" % (topicname[0])
+    cursor1 = mydb.cursor()
+    cursor1.execute(sql_select_Query_topic)
+
+    myresult = cursor1.fetchall()
+
+
+    # print(myresult)
+    x = str(myresult).split(',')
+    length = int(len(x))
+
+    if str(myresult).isupper() or str(myresult).islower() :
+        print('has a record')
+    else:
+        length = 0
+    # print(len(x)) 
+    position_to_start = int(topicname[1])
+    return_result = x[position_to_start:length] # this will be sent to subscriber who requested
+    print(return_result)
+
+    reults = 'RESULTS#' + str(return_result)
+
+    conn.send(str(reults).encode(FORMAT)) #send packet back to subcriber for result
+    
+    #now update GROUP db with results that a specific group got the latest update of a specific topic
+    print('THIS IS THE ORIGINAL ' + splitTopic[3])
+    print('THIS IS TOPIC ' + Topicnamefeedback)
+    print('THIS IS THE UPDATED VERSION ' + topicname[0] + ':' + str(length))
+
+        
+    
+    new = topicname[0] + ':' + str(length)
+    check_empty = Topicnamefeedback.split(":")
+   
+    # if(str(check_empty[1]) == "0"):
+    #     new = topicname[0] + ':' + str('0')
+    print('TARGET' + str(check_empty[1]))
+    replacement = str(splitTopic[3]).replace(str(Topicnamefeedback) , new )
+    final_update = replacement.split("'")
+    q = str(splitTopic[3]).split("'")
+    print(q[1])
+    print('THIS IS THE NEW RECORD '+ final_update[1])
+
+    z = str(final_update[1])
+
+
+    
+
+   
+
+    x = str(q[1])
+
+    print(z)
+    print(x)
+    #now I will update table in DB
+
+    mycursor2 = mydb.cursor()
+
+
+    sql2 = "UPDATE Groups SET Subscribed_topics = '%s' WHERE Subscribed_topics = '%s'" % (z, x)
+
+    mycursor2.execute(sql2)
+
+    mydb.commit()
+
+    print(mycursor2.rowcount, "record(s) affected")
+
+    record_msg = 'COMPLETED'
+    conn.send(record_msg.encode(FORMAT))
+
+
+    print('')
 
 def check_group_exist(conn,addr,msg,mydb):
 
@@ -92,9 +173,9 @@ def check_group_exist(conn,addr,msg,mydb):
    # will use group name in SQL query
     groupname = splitgroup[1]
 
+   
 
-
-    sql_select_Query = "select * from Groups where Group_Name='%s'" % (groupname)
+    sql_select_Query = "select Subscribed_topics from Groups where Group_Name='%s'" % (groupname)
     cursor = mydb.cursor()
     cursor.execute(sql_select_Query)
 
@@ -106,12 +187,23 @@ def check_group_exist(conn,addr,msg,mydb):
       
     if cursor.rowcount==1:
         print('Group ' + groupname + ' does exist')
-        ## Do your thing here
+        print(str(myresult))
+        GROUPRESULTS = 'group results#' + str(myresult)
+        # Do your thing here
+
+        # need to now return list of already subscribed topics
+        conn.send(str(GROUPRESULTS).encode(FORMAT))
+
        
         # now will send a confirmation to client that group exist
 
     else:
          print('Group ' + groupname + ' does NOT exist')
+
+         send_response = 'NOT EXISIT# -> ' + groupname
+         # Sending messaeg to client that group does not exisit 
+         conn.send(str(send_response).encode(FORMAT))
+
     
    
 def check_Topic_exist(conn,addr,msg,mydb):
@@ -155,8 +247,12 @@ def DB_Message_input(topicname,clientmessage,mydb): #This function will find the
     
 
     result = mycursor.fetchone()
-    new = str(result[0]) + ',' + clientmessage  # This is the new message that is to be updated to DB
 
+    
+    
+    new = str(result[0]) + ',' + clientmessage  # This is the new message that is to be updated to DB
+    if (str(result[0]) == "") :
+        new = new.replace(",","")
     print(new)
 
 
@@ -171,6 +267,8 @@ def DB_Message_input(topicname,clientmessage,mydb): #This function will find the
 def Create_Topic_DB(clienttopic,mydb):
 
     mycursor = mydb.cursor()
+    
+    
 
     sql = "INSERT INTO messages (Topic_name,message_values) VALUES (%s,%s)"
     val = (clienttopic,'')
@@ -228,7 +326,7 @@ def handle_client(conn, addr,mydb):
              topicname = splitmsg[0]  #topic
              clientmessage = splitmsg[2] # client message part
             #will now need to parse the JSON
-
+             print('this is client below')
              print(clientmessage)
              data = json.loads(str(clientmessage))
 
@@ -246,7 +344,9 @@ def handle_client(conn, addr,mydb):
 
               #Now call function to add to database.
 
-
+        if 'UPDATE' in msg:  #This is when a subscriber node is requesting a message update for it's group
+            Get_Update(conn,addr,msg,mydb) #This will fetch result from db
+            # Now I need to update the database with the results.
 
 
         # if 'Topic' in msg:
