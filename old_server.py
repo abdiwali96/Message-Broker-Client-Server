@@ -92,6 +92,8 @@ def Get_Update(conn,addr,msg,mydb):
     print('this is a test ' + topicname[0])
     #I will need to create to queries. 
 
+    print('is this a number ' + str(splitTopic))
+
     sql_select_Query_topic = "select message_values from messages where Topic_name='%s'" % (topicname[0])
     cursor1 = mydb.cursor()
     cursor1.execute(sql_select_Query_topic)
@@ -165,6 +167,8 @@ def Get_Update(conn,addr,msg,mydb):
 
     print('')
 
+   
+
 def check_group_exist(conn,addr,msg,mydb):
 
     # Split message to get the group name
@@ -173,6 +177,10 @@ def check_group_exist(conn,addr,msg,mydb):
    # will use group name in SQL query
     groupname = splitgroup[1]
 
+
+    
+    print('THIS IS THE GROUP NAME ' + groupname)
+    print(splitgroup)
    
 
     sql_select_Query = "select Subscribed_topics from Groups where Group_Name='%s'" % (groupname)
@@ -279,6 +287,30 @@ def Create_Topic_DB(clienttopic,mydb):
     print(mycursor.rowcount, "record inserted.")
     print('')
 
+
+def Create_new_group(conn,addr,msg,mydb): 
+
+    splitmsg = msg.split("#")
+    print(splitmsg)
+    #splitting message to grab Group name
+    groupname = str(splitmsg[1])
+
+    print(groupname)
+    print('Create a new group')
+
+    mycursor = mydb.cursor()
+    
+    
+
+    sql = "INSERT INTO Groups (Group_Name,Subscribed_topics) VALUES (%s,%s)"
+    val = (groupname,'')
+    mycursor.execute(sql, val)
+
+    mydb.commit()
+
+    print(mycursor.rowcount, "record inserted.")
+    print('')
+
 def handle_client(conn, addr,mydb):
     print(f"[NEW CONNECTION] {addr} connected.")
 
@@ -348,7 +380,8 @@ def handle_client(conn, addr,mydb):
             Get_Update(conn,addr,msg,mydb) #This will fetch result from db
             # Now I need to update the database with the results.
 
-
+       
+            
         # if 'Topic' in msg:
             
         #     if isinstance(msg, str): 
