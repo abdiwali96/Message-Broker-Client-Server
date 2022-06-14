@@ -92,7 +92,12 @@ def Get_Update(conn,addr,msg,mydb):
     print('this is a test ' + topicname[0])
     #I will need to create to queries. 
 
-    print('is this a number ' + str(splitTopic))
+    print('is this a number ' + str(splitTopic[4]))
+
+
+    if(str(splitTopic[4]) == '0') :
+        print('THIS IS one')
+        
 
     sql_select_Query_topic = "select message_values from messages where Topic_name='%s'" % (topicname[0])
     cursor1 = mydb.cursor()
@@ -352,26 +357,42 @@ def handle_client(conn, addr,mydb):
 
 
         if 'MESSAGE#' in msg:
+
+
+             
              splitmsg = msg.split("#")
-             print(splitmsg)
-             #splitting message to grab Topic name
-             topicname = splitmsg[0]  #topic
-             clientmessage = splitmsg[2] # client message part
-            #will now need to parse the JSON
-             print('this is client below')
-             print(clientmessage)
-             data = json.loads(str(clientmessage))
+             print('THIS IS THE LENGTH - > ' + str(len(splitmsg)))
 
-             final_message = ''
-             for message in data:
-                  print(data[message])
-                  final_message+=data[message] + ','
-                  
+             #this is to split all the json messages
+             
+             #numberOfMessages = len(splitmsg) - 2
 
-             print(final_message)  
-             final_message = final_message[:-1] 
-             DB_Message_input(topicname,final_message,mydb)
-             print('')
+             split_allMessages = splitmsg[2].split(",")
+             numberOfMessages = len(split_allMessages)
+            
+             for No_msg in split_allMessages :
+                
+               
+
+                print(splitmsg)
+                #splitting message to grab Topic name
+                topicname = splitmsg[0]  #topic
+                clientmessage = str(No_msg) # client message part
+                #will now need to parse the JSON
+                print('this is client below')
+                print(clientmessage)
+                data = json.loads(str(clientmessage))
+
+                final_message = ''
+                for message in data:
+                    print(data[message])
+                    final_message+=data[message] + ','
+                    
+
+                print(final_message)  
+                final_message = final_message[:-1] 
+                DB_Message_input(topicname,final_message,mydb)
+                print('')
 
 
               #Now call function to add to database.
